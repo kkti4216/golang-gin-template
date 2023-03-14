@@ -1,0 +1,30 @@
+version: "3.8"
+services:
+  app:
+    build: ./app
+    restart: always
+    volumes:
+      - ./app/script.sh:/app/script.sh
+      - ./var/log/app:/var/log/app
+      - /etc/localtime:/etc/localtime:ro
+
+  https-portal:
+    image: steveltn/https-portal:1.22
+    ports:
+      - '80:80'
+      - '443:443'
+    restart: always
+    environment:
+      DOMAINS: 'admin:verystrongpassword@localhost-> http://app:3000'
+      STAGE: 'local'
+      LISTEN_IPV6: 'true'
+      ERROR_LOG: default
+      ACCESS_LOG: default
+      # FORCE_RENEW: 'true'
+    volumes:
+      - https-portal-certs:/var/lib/https-portal
+      - ./var/log/nginx:/var/log/nginx
+      - /etc/localtime:/etc/localtime:ro
+
+volumes:
+  https-portal-certs:
